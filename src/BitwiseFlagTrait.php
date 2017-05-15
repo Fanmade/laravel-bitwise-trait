@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Traits;
+namespace Fanmmade\Bitwise;
 
 /**
  * Class BitwiseFlagTrait
- * @package App\Traits
+ * @package Fanmade\Bitwise
  */
 trait BitwiseFlagTrait
 {
