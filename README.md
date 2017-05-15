@@ -21,7 +21,8 @@ $table->smallInteger('status'); // 2 byte -> maximum of 16 different values
 $table->unsignedSmallInteger('status'); // maximum of 17 different values
 $table->mediumInteger('status'); // 3 byte -> maximum of 24 different values
 ```
-You get the idea. Most times, you probably only need an unsigned tinyInteger :)
+You get the idea. Most times you probably only need an unsigned tinyInteger :)
+
 There are only a few use-cases, but you can add as many fields as you like.
 
 Include the Trait in your model like this:
@@ -63,7 +64,7 @@ To make your life easier, I recommend to use custom getters and setters.
      */
     public function setSentAttribute($sent = true)
     {
-        return $this->setFlag('status',MESSAGE_SENT, $sent);
+        return $this->setFlag('status', MESSAGE_SENT, $sent);
     }
 
     /**
