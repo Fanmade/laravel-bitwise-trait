@@ -1,3 +1,5 @@
+# Work in progress, you probably shouldn't use it yet
+
 # Laravel Bitwise Trait
 Simple trait to use bitwise operators on any class
 Inspired by http://php.net/manual/de/language.operators.bitwise.php#108679
