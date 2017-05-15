@@ -1,4 +1,6 @@
-# Work in progress, you probably shouldn't use it yet
+```diff
++ # Work in progress, you probably shouldn't use it yet</h1>
+```
 
 # Laravel Bitwise Trait
 Simple trait to use bitwise operators on any class
