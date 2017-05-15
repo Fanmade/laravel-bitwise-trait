@@ -1,0 +1,24 @@
+{
+    "name": "fanmade/laravel-bitwise-trait",
+    "type": "library",
+    "description": "Simple trait to use bitwise operators on any class",
+    "keywords": ["fanmade","laravel","bitwise","trait"],
+    "homepage": "https://github.com/Fanmade/laravel-bitwise-trait",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Benjamin Reuter",
+            "email": "ben@reuterben.de",
+            "homepage": "http://reuterben.de",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=5.4.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Fanmade\\Bitwise\\": "src"
+        }
+    }
+}
