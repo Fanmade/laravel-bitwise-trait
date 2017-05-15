@@ -1,6 +1,6 @@
 <?php
 
-namespace Fanmmade\Bitwise;
+namespace Fanmade\Bitwise;
 
 /**
  * Class BitwiseFlagTrait
