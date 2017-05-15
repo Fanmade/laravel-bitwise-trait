@@ -11,8 +11,10 @@ You are free to place it anywhere else, just change the namespace accordingly.
 ## Usage
 
 *This example is for a default Laravel (5.4) Model within the "App" namespace.*
+
 You need an (ideally unsigned) integer field in your database which will store the properties.
 The length does depend on the number of values you would like to store. You only need one bit per value, so it's 8 values for each byte, if the column is unsigned.
+
 Examples (based on laravel migrations):
 ```php
 $table->tinyInteger('status'); // 1 byte -> maximum of 7 different values
@@ -28,6 +30,7 @@ There are only a few use-cases, but you can add as many fields as you like.
 Include the Trait in your model like this:
 ```php
 <?php namespace App;
+
 use App\Traits\BitwiseFlagTrait;
 
 class Message extends Model
