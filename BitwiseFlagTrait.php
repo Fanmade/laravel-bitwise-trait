@@ -22,7 +22,7 @@ trait BitwiseFlagTrait
      * @param $flag
      * @return bool
      */
-    protected function isFlagSet($name, $flag)
+    protected function getFlag($name, $flag)
     {
         return (($this->$name & $flag) == $flag);
     }
