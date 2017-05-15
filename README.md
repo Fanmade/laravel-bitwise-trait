@@ -1,5 +1,5 @@
 ```diff
-- Work in progress, you probably shouldn't use it yet</h1>
+- Work in progress, you probably shouldn't use it yet!
 ```
 
 # Laravel Bitwise Trait
