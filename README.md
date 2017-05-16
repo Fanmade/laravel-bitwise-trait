@@ -1,7 +1,3 @@
-```diff
-- Work in progress, you probably shouldn't use it yet!
-```
-
 # Laravel Bitwise Trait
 Simple trait to use bitwise operators on any class
 Inspired by http://php.net/manual/de/language.operators.bitwise.php#108679
@@ -9,8 +5,13 @@ Inspired by http://php.net/manual/de/language.operators.bitwise.php#108679
 I just used it in Laravel so far, but you should be able to use it anyhwere else with minor modifications.
 
 ## Installation
-Just put the file in app/Traits (create the folder if it doesn't exist yet) and you're good to go. 
-You are free to place it anywhere else, just change the namespace accordingly.
+
+You can install the package via composer:
+
+```bash
+composer require fanmade/laravel-bitwise-trait
+```
+That's all, no provider registration needed :)
 
 ## Usage
 
@@ -29,7 +30,7 @@ $table->mediumInteger('status'); // 3 byte -> maximum of 24 different values
 ```
 You get the idea. Most times you probably only need an unsigned tinyInteger :)
 
-There are only a few use-cases, but you can add as many fields as you like.
+There are only a few use-cases for more than one database field, but you can add as many fields as you like.
 
 Include the Trait in your model like this:
 ```php
@@ -43,7 +44,8 @@ class Message extends Model
   use BitwiseFlagTrait;
 ```
 
-The best way to define your properties is via constants.
+The best way to define your properties is via constants directly in the model.
+You're of course free to use config varibales or whatever you prefer.
 ```php
 const MESSAGE_SENT = 1; // BIT #1 of has the value 1
 const MESSAGE_RECEIVED = 2; // BIT #2 of has the value 2
@@ -53,14 +55,15 @@ const MESSAGE_READ = 8; // BIT #4 of has the value 8
 
 To set a property, just call the function like this:
 ```php
-$this->setFlag('status', MESSAGE_SENT, true);
+$this->setFlag('status', self::MESSAGE_SENT, true);
 ```
 
 To get a property, just call the function like this:
 ```php
-$sent = $this->getFlag('status', MESSAGE_SENT);
+$sent = $this->getFlag('status', self::MESSAGE_SENT);
 ```
-The first parameter is always the field you set in the database.
+The first parameter *('status' in the example)* is always the column you set in the database.
+Maybe you want to define that in a constant or variable.
 
 To make your life easier, I recommend to use custom getters and setters.
 ```php
@@ -71,7 +74,7 @@ To make your life easier, I recommend to use custom getters and setters.
      */
     public function setSentAttribute($sent = true)
     {
-        return $this->setFlag('status', MESSAGE_SENT, $sent);
+        return $this->setFlag('status', self::MESSAGE_SENT, $sent);
     }
 
     /**
@@ -79,7 +82,7 @@ To make your life easier, I recommend to use custom getters and setters.
      */
     public function getSentAttribute()
     {
-        return $this->getFlag('status', MESSAGE_SENT);
+        return $this->getFlag('status', self::MESSAGE_SENT);
     }
 
 ```
@@ -93,7 +96,7 @@ If you want to use the new field in scopes, you can do that like this:
      */
     public function scopeUnread($query)
     {
-        return $query->whereRAW('NOT status & ' . MESSAGE_READ);
+        return $query->whereRAW('NOT status & ' . self::MESSAGE_READ);
     }
 
     /**
@@ -102,7 +105,7 @@ If you want to use the new field in scopes, you can do that like this:
      */
     public function scopeRead($query)
     {
-        return $query->where('status', '&', MESSAGE_READ);
+        return $query->where('status', '&', self::MESSAGE_READ);
     }
 
 ```
