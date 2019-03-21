@@ -31,7 +31,7 @@ trait BitwiseFlagTrait
      * @param string $name
      * @param int $flag
      * @param $value
-     * @return bool
+     * @return $this
      */
     protected function setFlag($name, $flag, $value)
     {
@@ -40,5 +40,7 @@ trait BitwiseFlagTrait
         } else {
             $this->$name &= ~$flag;
         }
+        
+        return $this;
     }
 }
