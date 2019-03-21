@@ -4,7 +4,7 @@
     "keywords": ["fanmade","laravel","bitwise","trait"],
     "homepage": "https://github.com/Fanmade/laravel-bitwise-trait",
     "license": "MIT",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "authors": [
         {
             "name": "Benjamin Reuter",
