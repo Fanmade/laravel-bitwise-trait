@@ -36,7 +36,7 @@ Include the Trait in your model like this:
 ```php
 <?php namespace App;
 
-use App\Traits\BitwiseFlagTrait;
+use Fanmade\Bitwise\BitwiseFlagTrait;
 
 class Message extends Model
 {
