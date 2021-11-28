@@ -4,21 +4,24 @@
     "keywords": ["fanmade","laravel","bitwise","trait"],
     "homepage": "https://github.com/Fanmade/laravel-bitwise-trait",
     "license": "MIT",
-    "version": "1.0.1",
+    "version": "2.0.0",
     "authors": [
         {
             "name": "Benjamin Reuter",
             "email": "ben@reuterben.de",
-            "homepage": "http://reuterben.de",
             "role": "Developer"
         }
     ],
     "require": {
-        "php": ">=5.4.0"
+        "php": ">=7.4"
     },
     "autoload": {
         "psr-4": {
-            "Fanmade\\Bitwise\\": "src"
+            "Fanmade\\Bitwise\\": "src",
+            "Fanmade\\Bitwise\\Tests\\": "tests"
         }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.5"
     }
 }

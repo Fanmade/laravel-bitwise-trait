@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Fanmade\Bitwise;
 
 /**
@@ -8,32 +10,12 @@ namespace Fanmade\Bitwise;
  */
 trait BitwiseFlagTrait
 {
-
-    /**
-     *
-     */
-    protected static function bootBitwiseFlagTrait()
+    protected function getFlag(string $name, int $flag): bool
     {
-        //
+        return ($this->$name & $flag) === $flag;
     }
 
-    /**
-     * @param $name
-     * @param $flag
-     * @return bool
-     */
-    protected function getFlag($name, $flag)
-    {
-        return (($this->$name & $flag) == $flag);
-    }
-
-    /**
-     * @param string $name
-     * @param int $flag
-     * @param $value
-     * @return $this
-     */
-    protected function setFlag($name, $flag, $value)
+    protected function setFlag(string $name, int $flag, bool $value): self
     {
         if ($value) {
             $this->$name |= $flag;
@@ -41,6 +23,13 @@ trait BitwiseFlagTrait
             $this->$name &= ~$flag;
         }
         
+        return $this;
+    }
+
+    protected function toggleFlag(string $name, int $flag): self
+    {
+        $this->$name ^= $flag;
+
         return $this;
     }
 }
