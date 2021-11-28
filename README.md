@@ -7,7 +7,7 @@ Updated after reading this blog post: https://aaronfrancis.com/2021/bitmasking-i
 I just used it in Laravel so far, but you should be able to use it anywhere else with minor modifications.
 
 ## PHP Version
-Version v2.* requires PHP 8+. If you're stuck to an older version, please use v1.* 
+Version v2.* requires PHP 7.4+. If you're stuck to an older version, please use v1.* 
 
 ## Installation
 
@@ -89,20 +89,14 @@ Maybe you want to define that in a constant or variable.
 
 To make your life easier, I recommend to use custom getters and setters.
 ```php
-
-    /**
-     * @param bool $sent
-     * @return bool
-     */
-    public function setSentAttribute($sent = true)
+    public function setSentAttribute($sent = true): self
     {
-        return $this->setFlag('status', self::MESSAGE_SENT, $sent);
+        $this->setFlag('status', self::MESSAGE_SENT, $sent);
+        
+        return $this;
     }
 
-    /**
-     * @return bool
-     */
-    public function getSentAttribute()
+    public function getSentAttribute(): bool
     {
         return $this->getFlag('status', self::MESSAGE_SENT);
     }

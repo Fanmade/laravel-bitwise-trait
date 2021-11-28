@@ -15,21 +15,21 @@ trait BitwiseFlagTrait
         return ($this->$name & $flag) === $flag;
     }
 
-    protected function setFlag(string $name, int $flag, bool $value): self
+    protected function setFlag(string $name, int $flag, bool $value): bool
     {
         if ($value) {
             $this->$name |= $flag;
         } else {
             $this->$name &= ~$flag;
         }
-        
-        return $this;
+
+        return ($this->$name & $flag) === $flag;
     }
 
-    protected function toggleFlag(string $name, int $flag): self
+    protected function toggleFlag(string $name, int $flag): bool
     {
         $this->$name ^= $flag;
 
-        return $this;
+        return $this->getFlag($name, $flag);
     }
 }
