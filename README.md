@@ -1,8 +1,13 @@
 # Laravel Bitwise Trait
-Simple trait to use bitwise operators on any class
+A simple trait to use bitwise operators on any class
 Inspired by http://php.net/manual/de/language.operators.bitwise.php#108679
 
-I just used it in Laravel so far, but you should be able to use it anyhwere else with minor modifications.
+Updated after reading this blog post: https://aaronfrancis.com/2021/bitmasking-in-laravel-and-mysql
+
+I just used it in Laravel so far, but you should be able to use it anywhere else with minor modifications.
+
+## PHP Version
+Version v2.* requires PHP 8+. If you're stuck to an older version, please use v1.* 
 
 ## Installation
 
@@ -34,23 +39,40 @@ There are only a few use-cases for more than one database field, but you can add
 
 Include the Trait in your model like this:
 ```php
-<?php namespace App;
+<?php 
+
+namespace App;
 
 use Fanmade\Bitwise\BitwiseFlagTrait;
 
 class Message extends Model
 {
-
   use BitwiseFlagTrait;
 ```
 
 The best way to define your properties is via constants directly in the model.
-You're of course free to use config varibales or whatever you prefer.
+You're of course free to use config variables or whatever you prefer.
 ```php
-const MESSAGE_SENT = 1; // BIT #1 of has the value 1
+const MESSAGE_SENT     = 1; // BIT #1 of has the value 1
 const MESSAGE_RECEIVED = 2; // BIT #2 of has the value 2
-const MESSAGE_SEEN = 4; // BIT #3 of has the value 4
-const MESSAGE_READ = 8; // BIT #4 of has the value 8
+const MESSAGE_SEEN     = 4; // BIT #3 of has the value 4
+const MESSAGE_READ     = 8; // BIT #4 of has the value 8
+```
+
+This alternative syntax may be easier to read:
+```php
+const MESSAGE_SENT     = 1 << 0;
+const MESSAGE_RECEIVED = 1 << 1;
+const MESSAGE_SEEN     = 1 << 2;
+const MESSAGE_READ     = 1 << 3;
+```
+
+Or directly in binary notation:
+```php
+const MESSAGE_SENT     = 0b00000001;
+const MESSAGE_RECEIVED = 0b00000010;
+const MESSAGE_SEEN     = 0b00000100;
+const MESSAGE_READ     = 0b00001000;
 ```
 
 To set a property, just call the function like this:
