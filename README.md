@@ -1,6 +1,7 @@
 # Laravel Bitwise Trait
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/fanmade/laravel-bitwise-trait.svg)](https://packagist.org/packages/fanmade/laravel-bitwise-trait)
+[![Tests](https://github.com/Fanmade/laravel-bitwise-trait/actions/workflows/tests.yml/badge.svg)](https://github.com/Fanmade/laravel-bitwise-trait/actions/workflows/tests.yml)
 [![Total Downloads](https://img.shields.io/packagist/dt/fanmade/laravel-bitwise-trait.svg)](https://packagist.org/packages/fanmade/laravel-bitwise-trait)
 [![License](https://img.shields.io/packagist/l/fanmade/laravel-bitwise-trait.svg)](LICENSE.md)
 
