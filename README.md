@@ -1,127 +1,186 @@
 # Laravel Bitwise Trait
-A simple trait to use bitwise operators on any class
-Inspired by http://php.net/manual/de/language.operators.bitwise.php#108679
 
-Updated after reading this blog post: https://aaronfrancis.com/2021/bitmasking-in-laravel-and-mysql
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/fanmade/laravel-bitwise-trait.svg)](https://packagist.org/packages/fanmade/laravel-bitwise-trait)
+[![Total Downloads](https://img.shields.io/packagist/dt/fanmade/laravel-bitwise-trait.svg)](https://packagist.org/packages/fanmade/laravel-bitwise-trait)
+[![License](https://img.shields.io/packagist/l/fanmade/laravel-bitwise-trait.svg)](LICENSE.md)
 
-I just used it in Laravel so far, but you should be able to use it anywhere else with minor modifications.
+A tiny, framework-agnostic trait for storing many boolean flags in a **single integer column** using bitwise operations. One `tinyInteger` column can hold up to 8 independent true/false values instead of 8 separate columns.
 
-## PHP Version
-Version v2.* requires PHP 7.4+. If you're stuck to an older version, please use v1.* 
+Although it's built with Laravel in mind, the trait itself has **no framework dependency** — it works in any PHP class.
+
+Inspired by the [PHP manual on bitwise operators](https://www.php.net/manual/en/language.operators.bitwise.php#108679) and Aaron Francis' write-up on [bitmasking in Laravel and MySQL](https://aaronfrancis.com/2021/bitmasking-in-laravel-and-mysql).
+
+## Requirements
+
+- PHP **8.2+**
+
+> Using an older stack? `v2.*` supports PHP 7.4+, and `v1.*` supports even older versions. See the [upgrade notes](CHANGELOG.md) before moving to `v3`.
 
 ## Installation
-
-You can install the package via composer:
 
 ```bash
 composer require fanmade/laravel-bitwise-trait
 ```
-That's all, no provider registration needed :)
 
-## Usage
+No service provider registration is needed.
 
-*This example is for a default Laravel (5.4) Model within the "App" namespace.*
+## How it works
 
-You need an (ideally unsigned) integer field in your database which will store the properties.
-The length does depend on the number of values you would like to store. You only need one bit per value, so it's 8 values for each byte, if the column is unsigned.
+Each flag is a single bit, so every flag's value is a distinct power of two (`1, 2, 4, 8, …`). A record's integer column is the bitwise OR of all the flags that are currently set. Because every flag owns its own bit, they never collide — you can read, set, or toggle one without touching the others.
 
-Examples (based on laravel migrations):
+You need one (ideally **unsigned**) integer column to store the flags. Pick its size based on how many flags you need — you only need one bit per flag:
+
 ```php
-$table->tinyInteger('status'); // 1 byte -> maximum of 7 different values
-$table->unsignedTinyInteger('status'); // maximum of 8 different values
-$table->smallInteger('status'); // 2 byte -> maximum of 16 different values
-$table->unsignedSmallInteger('status'); // maximum of 17 different values
-$table->mediumInteger('status'); // 3 byte -> maximum of 24 different values
+$table->unsignedTinyInteger('status');   // 1 byte  -> up to 8 flags
+$table->unsignedSmallInteger('status');  // 2 bytes -> up to 16 flags
+$table->unsignedMediumInteger('status'); // 3 bytes -> up to 24 flags
+$table->unsignedInteger('status');       // 4 bytes -> up to 32 flags
 ```
-You get the idea. Most times you probably only need an unsigned tinyInteger :)
 
-There are only a few use-cases for more than one database field, but you can add as many fields as you like.
+Most of the time an `unsignedTinyInteger` is all you need. You can add as many flag columns as you like if you outgrow a single one.
 
-Include the Trait in your model like this:
+## Quick start
+
+Add the trait to your model and define one flag constant per bit. The clearest way to write the values is the shift syntax `1 << n`:
+
 ```php
-<?php 
+<?php
 
-namespace App;
+namespace App\Models;
 
 use Fanmade\Bitwise\BitwiseFlagTrait;
+use Illuminate\Database\Eloquent\Model;
 
 class Message extends Model
 {
-  use BitwiseFlagTrait;
+    use BitwiseFlagTrait;
+
+    public const SENT     = 1 << 0; // 1
+    public const RECEIVED = 1 << 1; // 2
+    public const SEEN     = 1 << 2; // 4
+    public const READ     = 1 << 3; // 8
+}
 ```
 
-The best way to define your properties is via constants directly in the model.
-You're of course free to use config variables or whatever you prefer.
+The trait gives you three **protected** helper methods to call from inside your model. The first argument is always the name of the column that stores the flags:
+
+- `getFlag(string $column, int $flag): bool` — is the flag currently set?
+- `setFlag(string $column, int $flag, bool $value): bool` — set or clear the flag; returns its new state
+- `toggleFlag(string $column, int $flag): bool` — flip the flag; returns its new state
+
+Because they're protected, you expose each flag through a small accessor (below) rather than calling them from outside the model.
+
+## Exposing flags as attributes
+
+Wrap each flag in an [accessor/mutator](https://laravel.com/docs/eloquent-mutators#accessors-and-mutators) so it reads and writes like a normal boolean attribute.
+
+Since Laravel 9 the idiomatic way is a single `Attribute` method per flag:
+
 ```php
-const MESSAGE_SENT     = 1; // BIT #1 of has the value 1
-const MESSAGE_RECEIVED = 2; // BIT #2 of has the value 2
-const MESSAGE_SEEN     = 4; // BIT #3 of has the value 4
-const MESSAGE_READ     = 8; // BIT #4 of has the value 8
+use Illuminate\Database\Eloquent\Casts\Attribute;
+
+protected function seen(): Attribute
+{
+    return Attribute::make(
+        get: fn (): bool => $this->getFlag('status', self::SEEN),
+        set: fn (bool $value) => $this->setFlag('status', self::SEEN, $value),
+    );
+}
 ```
 
-This alternative syntax may be easier to read:
+Now the flag behaves like any other attribute:
+
 ```php
-const MESSAGE_SENT     = 1 << 0;
-const MESSAGE_RECEIVED = 1 << 1;
-const MESSAGE_SEEN     = 1 << 2;
-const MESSAGE_READ     = 1 << 3;
+$message->seen = true;
+$message->seen; // => true
+$message->save();
 ```
 
-Or directly in binary notation:
+<details>
+<summary>Older Laravel (magic-method accessors)</summary>
+
+Before Laravel 9 you'd define the accessor and mutator as separate magic methods:
+
 ```php
-const MESSAGE_SENT     = 0b00000001;
-const MESSAGE_RECEIVED = 0b00000010;
-const MESSAGE_SEEN     = 0b00000100;
-const MESSAGE_READ     = 0b00001000;
-```
+public function getSeenAttribute(): bool
+{
+    return $this->getFlag('status', self::SEEN);
+}
 
-To set a property, just call the function like this:
+public function setSeenAttribute(bool $value): void
+{
+    $this->setFlag('status', self::SEEN, $value);
+}
+```
+</details>
+
+## Querying by flag (scopes)
+
+To filter records by a flag, add a query scope. A bit is set when `column & flag = flag`, and unset when `column & flag = 0`.
+
+Since Laravel 12 you can use the `#[Scope]` attribute, which drops the old `scope` method-name prefix:
+
 ```php
-$this->setFlag('status', self::MESSAGE_SENT, true);
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
+
+#[Scope]
+protected function read(Builder $query): void
+{
+    $query->whereRaw('(status & ?) = ?', [self::READ, self::READ]);
+}
+
+#[Scope]
+protected function unread(Builder $query): void
+{
+    $query->whereRaw('(status & ?) = 0', [self::READ]);
+}
 ```
 
-To get a property, just call the function like this:
 ```php
-$sent = $this->getFlag('status', self::MESSAGE_SENT);
+Message::read()->get();
+Message::unread()->get();
 ```
-The first parameter *('status' in the example)* is always the column you set in the database.
-Maybe you want to define that in a constant or variable.
 
-To make your life easier, I recommend to use custom getters and setters.
+<details>
+<summary>Older Laravel (scope-prefixed methods)</summary>
+
+Before Laravel 12, name the method with a `scope` prefix instead of using the attribute:
+
 ```php
-    public function setSentAttribute($sent = true): self
-    {
-        $this->setFlag('status', self::MESSAGE_SENT, $sent);
-        
-        return $this;
-    }
+public function scopeRead(Builder $query): Builder
+{
+    return $query->whereRaw('(status & ?) = ?', [self::READ, self::READ]);
+}
 
-    public function getSentAttribute(): bool
-    {
-        return $this->getFlag('status', self::MESSAGE_SENT);
-    }
-
+public function scopeUnread(Builder $query): Builder
+{
+    return $query->whereRaw('(status & ?) = 0', [self::READ]);
+}
 ```
+</details>
 
-## Scopes
-If you want to use the new field in scopes, you can do that like this:
+## Writing flag values
+
+Beyond the shift syntax, you can define the constants however reads best to you — all three of these are equivalent:
+
 ```php
-    /**
-     * @param Builder $query
-     * @return Builder
-     */
-    public function scopeUnread($query)
-    {
-        return $query->whereRAW('NOT status & ' . self::MESSAGE_READ);
-    }
-
-    /**
-     * @param Builder $query
-     * @return Builder
-     */
-    public function scopeRead($query)
-    {
-        return $query->where('status', '&', self::MESSAGE_READ);
-    }
-
+public const SENT = 8;         // decimal
+public const SENT = 1 << 3;    // bit shift
+public const SENT = 0b0001000; // binary literal
 ```
+
+## Testing
+
+```bash
+composer install
+vendor/bin/phpunit
+```
+
+## Credits
+
+- [Fanmade](https://github.com/Fanmade)
+
+## License
+
+The MIT License (MIT). See [License File](LICENSE.md) for more information.
